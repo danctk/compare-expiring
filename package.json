@@ -1,0 +1,19 @@
+{
+  "name": "json-analyzer",
+  "version": "1.0.0",
+  "description": "CLI tool to query and compare records in JSON files",
+  "type": "module",
+  "bin": {
+    "json-analyze": "./bin/json-analyze.js"
+  },
+  "scripts": {
+    "start": "node bin/json-analyze.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "jsonpath-plus": "^10.2.0"
+  }
+}
