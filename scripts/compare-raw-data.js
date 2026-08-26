@@ -52,7 +52,7 @@ async function main() {
   const result = compareRecords(records);
   await writeFile(output, result.csv, 'utf8');
 
-  console.log(`Compared ${records.length} records`);
+  console.log(`Compared ${result.includedRecords} records (${result.excludedRecords} CAN records excluded)`);
   console.log(`Wrote ${result.columns.length} columns to ${output}`);
 }
 
