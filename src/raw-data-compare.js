@@ -10,6 +10,7 @@ const IDENTITY_FIELDS = [
 ];
 
 const SCALAR_PAIRS = [
+  { column: 'name', rn: 'rnName', exp: 'expName' },
   { column: 'aggregateLimit', rn: 'rnaggregateLimit', exp: 'expaggregateLimit' },
   { column: 'perClaimLimit', rn: 'rnperClaimLimit', exp: 'expperClaimLimit' },
   { column: 'retention', rn: 'rnretention', exp: 'expretention' },
@@ -87,6 +88,9 @@ const IGNORED_FIELD_NAMES = new Set([
   'flagadditionalform',
   'dgerp',
   'ratepermillion',
+  'rateoful',
+  'agentcode',
+  'insuredclass',
   'txtratepermillion',
   'txtrateoful',
   'txtpremium',
@@ -193,6 +197,18 @@ function compareDirectFields(rnObj, expObj) {
 
 function compareLeafObjects(rnObj, expObj) {
   return compareDirectFields(rnObj, expObj);
+}
+
+function compareNestedObject(rnObj, expObj) {
+  if (rnObj == null) {
+    return 'missing';
+  }
+  if (expObj == null) {
+    return '';
+  }
+
+  const mismatches = compareObjectFieldPaths(rnObj, expObj);
+  return mismatches.length === 0 ? 'match' : mismatches.sort().join(',');
 }
 
 function hasDirectFields(object) {
@@ -557,6 +573,11 @@ function compareRecord(record) {
     row[pair.column] = compareScalar(record[pair.rn], record[pair.exp]);
   }
 
+  row.InsuredAddressDetails = compareNestedObject(
+    record.rnInsuredAddressDetails,
+    record.expInsuredAddressDetails,
+  );
+
   const coverageDefault = compareLeafObjects(
     record.rnCoverageDefaultPayload,
     record.expCoverageDefaultPayload,
@@ -607,6 +628,7 @@ export function compareRecords(records) {
     columnSet.add(pair.column);
   }
 
+  columnSet.add('InsuredAddressDetails');
   columnSet.add('coverageDefaultPayload');
   columnSet.add('requesterDetail');
 
@@ -618,7 +640,9 @@ export function compareRecords(records) {
 
   const staticColumns = [
     ...IDENTITY_FIELDS,
-    ...SCALAR_PAIRS.map((pair) => pair.column),
+    'name',
+    'InsuredAddressDetails',
+    ...SCALAR_PAIRS.filter((pair) => pair.column !== 'name').map((pair) => pair.column),
     'coverageDefaultPayload',
     'requesterDetail',
   ];

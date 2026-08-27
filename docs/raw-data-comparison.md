@@ -11,6 +11,8 @@ Compare renewal (`rn*`) and expiring policy (`exp*`) fields within each record o
 
 | Renewal field | Expiring field | Comparison type |
 |---------------|----------------|-----------------|
+| `rnName` | `expName` | Scalar |
+| `rnInsuredAddressDetails` | `expInsuredAddressDetails` | Nested object (path-based) |
 | `rnCoverageDefaultPayload` | `expCoverageDefaultPayload` | Nested object (flat leaf) |
 | `rnCoverages` | `expCoverages` | Nested objects by path |
 | `rnDefaultForms` | `expDefaultForms` | Array of objects, match by `FormNumber` |
@@ -38,11 +40,18 @@ Compare renewal (`rn*`) and expiring policy (`exp*`) fields within each record o
 
 | Column | Compares | Values |
 |--------|----------|--------|
+| `name` | `rnName` vs `expName` | *(blank)*, `mismatch` |
 | `aggregateLimit` | `rnaggregateLimit` vs `expaggregateLimit` | *(blank)*, `mismatch` |
 | `perClaimLimit` | `rnperClaimLimit` vs `expperClaimLimit` | *(blank)*, `mismatch` |
 | `retention` | `rnretention` vs `expretention` | *(blank)*, `mismatch` |
 
 ### Nested object comparison columns
+
+**Insured address** — single column `InsuredAddressDetails` comparing nested fields by path (e.g. `address.street`). `isStd` is ignored (starts with `is`):
+
+```
+InsuredAddressDetails → address.street,address.city
+```
 
 Each nested leaf object gets its own column named after the object key (e.g. `professionalLiabilityMpl`).
 
@@ -95,7 +104,7 @@ requesterDetail → productType
    - start with `is` (e.g. `isDefault`, `IsFormEditable`)
    - start with `flag` (e.g. `flagULIssueValidation`, `flagULQuoteValidation`)
    - end with `Range` (e.g. `erpMinRange`, `fieldRange`)
-   - match these names (case-insensitive): `_id`, `OrderNumber`, `UserSortColumn`, `includeSpecimen`, `FormTypeName`, `idx`, `FormNameDisplay`, `additionalFormName`, `flagAdditionalForm`, `dgERP`, `ratePerMillion`, `txtRatePerMillion`, `txtRateOfUl`, `txtPremium`, `txtPolicyLimit`, `txtAggregateLimit`, `txtLayerLimit`, `txtRetention`, `txtNumAttachment`, `previousYearRatePerMillion`, `txtpreviousYearRatePerMillion`, `freeformGridSublimitArchNspl`, `txtNSPLArchLimit`
+   - match these names (case-insensitive): `_id`, `OrderNumber`, `UserSortColumn`, `includeSpecimen`, `FormTypeName`, `idx`, `FormNameDisplay`, `additionalFormName`, `flagAdditionalForm`, `dgERP`, `ratePerMillion`, `rateOfUl`, `agentCode`, `insuredClass`, `txtRatePerMillion`, `txtRateOfUl`, `txtPremium`, `txtPolicyLimit`, `txtAggregateLimit`, `txtLayerLimit`, `txtRetention`, `txtNumAttachment`, `previousYearRatePerMillion`, `txtpreviousYearRatePerMillion`, `freeformGridSublimitArchNspl`, `txtNSPLArchLimit`
 4. **Excluded records:** Skip records where `number` starts with `CAN`.
 5. **Output values:** Cells are left blank when values match or when the renewal side is missing. Only actual mismatches are written.
 6. **optionalSection arrays:** Compare each item individually under coverages, matched by `coverageCode` (then `moduleId`, then `coverageName`). Columns use the full path (e.g. `mpl.optionalSection.NPIFPL`).
