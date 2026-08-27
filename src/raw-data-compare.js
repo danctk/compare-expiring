@@ -122,9 +122,26 @@ function normalizeResult(result) {
   return result;
 }
 
-function shouldIncludeRecord(record) {
-  const number = String(record.number ?? '');
-  return !number.startsWith('CAN');
+function normalizeSubmissionNumber(value) {
+  return String(value ?? '').trim().toUpperCase();
+}
+
+export function parseIgnoreList(text) {
+  const numbers = new Set();
+
+  for (const line of String(text ?? '').split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) {
+      continue;
+    }
+
+    const value = normalizeSubmissionNumber(trimmed.split('#')[0]);
+    if (value) {
+      numbers.add(value);
+    }
+  }
+
+  return numbers;
 }
 
 function stableStringify(value) {
@@ -619,8 +636,28 @@ function escapeCsvValue(value) {
   return text;
 }
 
-export function compareRecords(records) {
-  const includedRecords = records.filter(shouldIncludeRecord);
+export function compareRecords(records, options = {}) {
+  const ignoredNumbers = options.ignoredNumbers instanceof Set
+    ? options.ignoredNumbers
+    : parseIgnoreList(options.ignoreListText ?? '');
+
+  const includedRecords = [];
+  let excludedCanRecords = 0;
+  let ignoredListRecords = 0;
+
+  for (const record of records) {
+    const number = String(record.number ?? '').trim();
+    if (number.startsWith('CAN')) {
+      excludedCanRecords += 1;
+      continue;
+    }
+    if (ignoredNumbers.has(normalizeSubmissionNumber(number))) {
+      ignoredListRecords += 1;
+      continue;
+    }
+    includedRecords.push(record);
+  }
+
   const rows = includedRecords.map(compareRecord);
   const columnSet = new Set(IDENTITY_FIELDS);
 
@@ -665,5 +702,7 @@ export function compareRecords(records) {
     totalRecords: records.length,
     includedRecords: includedRecords.length,
     excludedRecords: records.length - includedRecords.length,
+    excludedCanRecords,
+    ignoredListRecords,
   };
 }

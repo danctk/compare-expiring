@@ -62,3 +62,5 @@ json-analyze compare samples/users.json "$.users" --duplicates --keys id,email
 
 to run:
 node scripts/compare-raw-data.js rawData.json comparison-results.csv
+
+Add submission numbers to omit (the `number` field, usually `S...`) to `ignore-list.txt`, one per line.

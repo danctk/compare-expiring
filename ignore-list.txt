@@ -1,0 +1,6 @@
+# Submission numbers listed here are omitted from comparison-results.csv.
+# Use the record "number" field (usually starts with S). One per line.
+# Blank lines and anything after # are ignored.
+#
+# Example:
+# S3290129

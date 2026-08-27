@@ -105,7 +105,7 @@ requesterDetail → productType
    - start with `flag` (e.g. `flagULIssueValidation`, `flagULQuoteValidation`)
    - end with `Range` (e.g. `erpMinRange`, `fieldRange`)
    - match these names (case-insensitive): `_id`, `OrderNumber`, `UserSortColumn`, `includeSpecimen`, `FormTypeName`, `idx`, `FormNameDisplay`, `additionalFormName`, `flagAdditionalForm`, `dgERP`, `ratePerMillion`, `rateOfUl`, `agentCode`, `insuredClass`, `txtRatePerMillion`, `txtRateOfUl`, `txtPremium`, `txtPolicyLimit`, `txtAggregateLimit`, `txtLayerLimit`, `txtRetention`, `txtNumAttachment`, `previousYearRatePerMillion`, `txtpreviousYearRatePerMillion`, `freeformGridSublimitArchNspl`, `txtNSPLArchLimit`
-4. **Excluded records:** Skip records where `number` starts with `CAN`.
+4. **Excluded records:** Skip records where `number` starts with `CAN`. Also skip submission numbers listed in [`ignore-list.txt`](../ignore-list.txt) (one `number` per line; `#` comments allowed).
 5. **Output values:** Cells are left blank when values match or when the renewal side is missing. Only actual mismatches are written.
 6. **optionalSection arrays:** Compare each item individually under coverages, matched by `coverageCode` (then `moduleId`, then `coverageName`). Columns use the full path (e.g. `mpl.optionalSection.NPIFPL`).
 7. **underlyingPolicies arrays:** Compare each item individually under coverages, matched by `layer` (then `srtPolicyNumberCov`, then `index`). Nested objects such as `carrier` are compared at their full path (e.g. `archExcess.underlyingPolicies.layer1.carrier`). Columns use the full path for tracking.
@@ -125,7 +125,10 @@ Or directly:
 node scripts/compare-raw-data.js rawData.json comparison-results.csv
 ```
 
+To omit specific submissions, add their `number` values to [`ignore-list.txt`](../ignore-list.txt) (one per line) and rerun. Override the file with `--ignore-list path/to/list.txt` if needed.
+
 ## Script location
 
 - [`scripts/compare-raw-data.js`](../scripts/compare-raw-data.js) — CLI entry point
 - [`src/raw-data-compare.js`](../src/raw-data-compare.js) — comparison logic
+- [`ignore-list.txt`](../ignore-list.txt) — manually edited submission numbers to omit
