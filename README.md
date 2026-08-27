@@ -59,3 +59,6 @@ json-analyze compare samples/users.json "$.users" --duplicates --keys id,email
 - `src/query.js` — JSONPath queries
 - `src/compare.js` — record summary, pair diff, duplicate detection
 - `samples/users.json` — sample data for demos
+
+to run:
+node scripts/compare-raw-data.js rawData.json comparison-results.csv
