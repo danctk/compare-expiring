@@ -97,12 +97,21 @@ const IGNORED_FIELD_NAMES = new Set([
   'txtpolicylimit',
   'txtaggregatelimit',
   'txtlayerlimit',
+  'txtlayer',
   'txtretention',
   'txtnumattachment',
+  'originallayer',
+  'ulvalid',
+  'ulindex',
+  'varlayer',
   'previousyearratepermillion',
   'txtpreviousyearratepermillion',
   'freeformgridsublimitarchnspl',
   'txtnsplarchlimit',
+]);
+
+const IGNORED_COVERAGE_PATHS = new Set([
+  'archtechserprof.coverage',
 ]);
 
 function isIgnoredField(fieldName) {
@@ -113,6 +122,13 @@ function isIgnoredField(fieldName) {
     || lower.endsWith('range')
     || IGNORED_FIELD_NAMES.has(lower)
   );
+}
+
+function isIgnoredCoveragePath(path) {
+  if (!path) {
+    return false;
+  }
+  return IGNORED_COVERAGE_PATHS.has(String(path).toLowerCase());
 }
 
 function normalizeResult(result) {
@@ -176,7 +192,7 @@ function valuesMatch(a, b) {
   return stringifyForCompare(a) === stringifyForCompare(b);
 }
 
-function compareDirectFields(rnObj, expObj) {
+function compareDirectFields(rnObj, expObj, prefix = '') {
   if (rnObj == null) {
     return 'missing';
   }
@@ -192,7 +208,8 @@ function compareDirectFields(rnObj, expObj) {
     (key) =>
       !isNestedObject(rnObj[key])
       && !isIgnoredField(key)
-      && !SKIPPED_ARRAY_FIELD_NAMES.has(key.toLowerCase()),
+      && !SKIPPED_ARRAY_FIELD_NAMES.has(key.toLowerCase())
+      && !isIgnoredCoveragePath(prefix ? `${prefix}.${key}` : key),
   );
   const mismatches = [];
 
@@ -365,7 +382,7 @@ function compareNestedTrees(rnRoot, expRoot) {
   for (const node of rnNodes) {
     const pathSegments = node.path.split('.').filter(Boolean);
     const expValue = expRoot == null ? undefined : getAtPath(expRoot, pathSegments);
-    results.set(node.column, compareDirectFields(node.object, expValue));
+    results.set(node.column, compareDirectFields(node.object, expValue, node.path));
   }
 
   return results;
@@ -377,7 +394,7 @@ function collectComparableObjects(object, prefix = '', useFullPath = false) {
     return results;
   }
 
-  if (hasDirectFields(object)) {
+  if (hasDirectFields(object) && !isIgnoredCoveragePath(prefix)) {
     results.push({
       path: prefix,
       column: columnNameForPath(prefix, useFullPath),
@@ -394,6 +411,9 @@ function collectComparableObjects(object, prefix = '', useFullPath = false) {
           continue;
         }
         const path = prefix ? `${prefix}.${key}.${matchKey}` : `${key}.${matchKey}`;
+        if (isIgnoredCoveragePath(path)) {
+          continue;
+        }
         results.push({
           path,
           column: path,
@@ -406,6 +426,9 @@ function collectComparableObjects(object, prefix = '', useFullPath = false) {
 
     if (value && typeof value === 'object' && !Array.isArray(value)) {
       const path = prefix ? `${prefix}.${key}` : key;
+      if (isIgnoredCoveragePath(path)) {
+        continue;
+      }
       results.push(...collectComparableObjects(value, path, useFullPath));
     }
   }

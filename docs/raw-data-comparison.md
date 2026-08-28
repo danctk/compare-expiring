@@ -104,7 +104,8 @@ requesterDetail → productType
    - start with `is` (e.g. `isDefault`, `IsFormEditable`)
    - start with `flag` (e.g. `flagULIssueValidation`, `flagULQuoteValidation`)
    - end with `Range` (e.g. `erpMinRange`, `fieldRange`)
-   - match these names (case-insensitive): `_id`, `OrderNumber`, `UserSortColumn`, `includeSpecimen`, `FormTypeName`, `idx`, `FormNameDisplay`, `additionalFormName`, `flagAdditionalForm`, `dgERP`, `ratePerMillion`, `rateOfUl`, `agentCode`, `insuredClass`, `txtRatePerMillion`, `txtRateOfUl`, `txtPremium`, `txtPolicyLimit`, `txtAggregateLimit`, `txtLayerLimit`, `txtRetention`, `txtNumAttachment`, `previousYearRatePerMillion`, `txtpreviousYearRatePerMillion`, `freeformGridSublimitArchNspl`, `txtNSPLArchLimit`
+   - match these names (case-insensitive): `_id`, `OrderNumber`, `UserSortColumn`, `includeSpecimen`, `FormTypeName`, `idx`, `FormNameDisplay`, `additionalFormName`, `flagAdditionalForm`, `dgERP`, `ratePerMillion`, `rateOfUl`, `agentCode`, `insuredClass`, `txtRatePerMillion`, `txtRateOfUl`, `txtPremium`, `txtPolicyLimit`, `txtAggregateLimit`, `txtLayerLimit`, `txtLayer`, `txtRetention`, `txtNumAttachment`, `originalLayer`, `ulValid`, `UlIndex`, `varLayer`, `previousYearRatePerMillion`, `txtpreviousYearRatePerMillion`, `freeformGridSublimitArchNspl`, `txtNSPLArchLimit`
+   - coverage paths: `archTechserProf.coverage`
 4. **Excluded records:** Skip records where `number` starts with `CAN`. Also skip submission numbers listed in [`ignore-list.txt`](../ignore-list.txt) (one `number` per line; `#` comments allowed).
 5. **Output values:** Cells are left blank when values match or when the renewal side is missing. Only actual mismatches are written.
 6. **optionalSection arrays:** Compare each item individually under coverages, matched by `coverageCode` (then `moduleId`, then `coverageName`). Columns use the full path (e.g. `mpl.optionalSection.NPIFPL`).
