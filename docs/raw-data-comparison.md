@@ -69,6 +69,12 @@ Each nested leaf object gets its own column named after the object key (e.g. `pr
 professionalLiabilityMpl → mplAggLimit,mplEachClaimLimit
 ```
 
+**Coverage grid arrays** — only `freeformGridUnderlingPolicies` items are matched by `layer`. Other grids keep their existing match methods. Mismatched fields stay in the parent coverage cell as dotted paths:
+
+```
+professionalLiabilityMpl → freeformGridUnderlingPolicies.layer1.numberAttachment
+```
+
 **Coverage default payload** — single column `coverageDefaultPayload`:
 
 ```
@@ -112,7 +118,7 @@ requesterDetail → productType
 7. **underlyingPolicies arrays:** Compare each item individually under coverages, matched by `layer` (then `srtPolicyNumberCov`, then `index`). Nested objects such as `carrier` are compared at their full path (e.g. `archExcess.underlyingPolicies.layer1.carrier`). Columns use the full path for tracking.
 8. **Path-based matching:** Nested objects are matched by field path, not by array index. Arrays of objects with identifiers (`FormNumber`, `code`) are indexed by that key before comparing.
 9. **Type coercion:** Numeric strings and numbers are treated as equal (`"1000"` matches `1000`). Boolean strings and booleans are treated as equal (`"false"` matches `false`). Empty strings and `null`/`undefined` are normalized before comparison.
-10. **Array fields within leaf objects:** Compared with normalized deep equality (sorted JSON for arrays of primitives/objects).
+10. **Array fields within leaf objects:** Compared with normalized deep equality (sorted JSON for arrays of primitives/objects). The only exception is `freeformGridUnderlingPolicies`, which is matched by `layer` and reported as dotted field paths in the parent coverage cell (e.g. `freeformGridUnderlingPolicies.layer1.numberAttachment`). Other grids are unchanged.
 
 ## Usage
 

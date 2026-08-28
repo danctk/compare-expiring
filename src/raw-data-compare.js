@@ -17,6 +17,7 @@ const SCALAR_PAIRS = [
 ];
 
 const SKIPPED_ARRAY_FIELD_NAMES = new Set(['optionalsection', 'underlyingpolicies']);
+const FREEFORM_GRID_UNDERLING_POLICIES = 'freeformgridunderlingpolicies';
 
 function normalizePrimitive(value) {
   if (value === null || value === undefined) {
@@ -217,6 +218,10 @@ function compareDirectFields(rnObj, expObj, prefix = '') {
     if (!Object.prototype.hasOwnProperty.call(expObj, key) || isBlankValue(expObj[key])) {
       continue;
     }
+    if (isFreeformGridUnderlingPoliciesField(key) && Array.isArray(rnObj[key])) {
+      mismatches.push(...compareFreeformGridUnderlingPolicies(rnObj[key], expObj[key], key));
+      continue;
+    }
     if (!valuesMatch(rnObj[key], expObj[key])) {
       mismatches.push(key);
     }
@@ -226,7 +231,60 @@ function compareDirectFields(rnObj, expObj, prefix = '') {
     return 'match';
   }
 
-  return mismatches.sort().join(',');
+  return [...new Set(mismatches)].sort().join(',');
+}
+
+function isFreeformGridUnderlingPoliciesField(fieldName) {
+  return String(fieldName).toLowerCase() === FREEFORM_GRID_UNDERLING_POLICIES;
+}
+
+function getFreeformGridUnderlingLayerKey(item) {
+  if (!item || typeof item !== 'object') {
+    return null;
+  }
+
+  const key = findCaseInsensitiveKey(item, 'layer');
+  if (!key) {
+    return null;
+  }
+
+  const value = item[key];
+  if (value == null || String(value).trim() === '') {
+    return null;
+  }
+
+  return `layer${String(value).trim()}`;
+}
+
+function compareFreeformGridUnderlingPolicies(rnArray, expArray, fieldName) {
+  if (!Array.isArray(rnArray) || !Array.isArray(expArray)) {
+    return [];
+  }
+
+  const expByLayer = new Map();
+  for (const item of expArray) {
+    const layerKey = getFreeformGridUnderlingLayerKey(item);
+    if (layerKey) {
+      expByLayer.set(layerKey, item);
+    }
+  }
+
+  const mismatches = [];
+  for (const rnItem of rnArray) {
+    const layerKey = getFreeformGridUnderlingLayerKey(rnItem);
+    if (!layerKey) {
+      continue;
+    }
+
+    const expItem = expByLayer.get(layerKey);
+    if (!expItem) {
+      continue;
+    }
+
+    mismatches.push(...compareObjectFieldPaths(rnItem, expItem, `${fieldName}.${layerKey}`));
+  }
+
+  return mismatches;
 }
 
 function compareLeafObjects(rnObj, expObj) {
