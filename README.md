@@ -46,11 +46,15 @@ json-analyze compare samples/users.json "$.users" --duplicates
 json-analyze compare samples/users.json "$.users" --duplicates --keys id,email
 ```
 
+
+
 ## JSONPath cheat sheet
 
 - `$.users` — root `users` array
 - `$.users[*].email` — all user emails
 - `$.users[0]` — first user object
+
+
 
 ## Project layout
 
@@ -61,6 +65,5 @@ json-analyze compare samples/users.json "$.users" --duplicates --keys id,email
 - `samples/users.json` — sample data for demos
 
 to run:
-node scripts/compare-raw-data.js rawData.json comparison-results.csv
-
-Add submission numbers to omit (the `number` field, usually `S...`) to `ignore-list.txt`, one per line.
+node scripts/compare-raw-data.js rawData.json comparison-results.csv  
+node scripts/count-coverage-grids.js rawData.json coverage-grid-counts.csv
