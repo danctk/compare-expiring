@@ -8,7 +8,8 @@
   },
   "scripts": {
     "start": "node bin/json-analyze.js",
-    "compare:raw": "node scripts/compare-raw-data.js"
+    "compare:raw": "node scripts/compare-raw-data.js",
+    "count:grids": "node scripts/count-coverage-grids.js"
   },
   "engines": {
     "node": ">=18"

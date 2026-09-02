@@ -6,4 +6,5 @@ node_modules/
 .DS_Store
 Thumbs.db
 comparison-results.csv
+coverage-grid-counts.csv
 rawData.json
